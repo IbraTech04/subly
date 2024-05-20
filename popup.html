@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>YouTube Caption Injector</title>
+  <style>
+    body {
+      width: 300px;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    .title-bar {
+      background-color: #4285F4;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-size: 20px;
+      border-radius: 4px 4px 0 0;
+    }
+    .content {
+      padding: 10px;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 0 0 4px 4px;
+    }
+    .section {
+      margin-bottom: 10px;
+    }
+    input[type="file"] {
+      width: 90%;
+      padding: 10px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+    }
+    input:checked + .slider {
+      background-color: #2196F3;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    .slider.round {
+      border-radius: 34px;
+    }
+    .slider.round:before {
+      border-radius: 50%;
+    }
+    .author {
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+    .author a {
+      color: #4285F4;
+      text-decoration: none;
+    }
+    .author a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="title-bar">YouTube Caption Inserter</div>
+  <div class="content">
+    <div class="section">
+      <label for="urlInput">Enter SRT URL:</label>
+      <input type="text" id="urlInput" placeholder="Enter URL">
+    </div>
+    <div class="section">
+        <div class="section" style="text-align: center;">
+            <span>Or</span>
+        </div>
+<div class="section">
+      <label for="fileInput">Upload SRT File:</label>
+      <input type="file" id="fileInput" accept=".srt">
+    </div>
+    <div class="section" style="text-align: center;">
+      <span>Enable Captions</span>
+      <label class="switch">
+        <input type="checkbox" id="toggleCaption">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
+  <div class="author">
+    <p>Ibrahim Chehab (<a href="https://github.com/ibratech04" target="_blank">IbraTech04</a>)</p>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

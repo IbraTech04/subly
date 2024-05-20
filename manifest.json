@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "YouTube Caption Inserter",
+    "version": "1.0",
+    "description": "Inserts a custom caption into YouTube videos.",
+    "permissions": ["activeTab", "scripting", "storage"],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+      }
+    },
+    "content_scripts": [
+      {
+        "matches": ["*://*.youtube.com/*"],
+        "js": ["contentScript.js"]
+      }
+    ]
+  }
+  
