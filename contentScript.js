@@ -5,7 +5,11 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
     if (request.action === "injectCaption" && captionContainer) {
         const url = request.url;
+        const color = request.color;
+        const fontSize = request.fontSize;
+        const position = request.position;
         console.log('Received URL:', url);
+        console.log('Color:', color, 'Font Size:', fontSize, 'Position:', position);
 
         try {
             const srtContent = await fetchSrtFromUrl(url);
@@ -18,13 +22,13 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
                 const existingCaption = document.getElementById('caption-window-1');
                 if (!existingCaption) {
                     const newDiv = document.createElement('div');
-                    newDiv.className = 'caption-window ytp-caption-window-bottom ytp-caption-window-rollup';
+                    newDiv.className = `caption-window ytp-caption-window-${position} ytp-caption-window-rollup`;
                     newDiv.id = 'caption-window-1';
                     newDiv.dir = 'ltr';
                     newDiv.tabIndex = 0;
                     newDiv.lang = 'es';
                     newDiv.draggable = true;
-                    newDiv.style.cssText = 'touch-action: none; background-color: rgba(8, 8, 8, 0.5); text-align: center; overflow: hidden; left: 0; right: 0; margin: auto; width: 840px; height: auto; bottom: 2%;';
+                    newDiv.style.cssText = `touch-action: none; background-color: rgba(8, 8, 8, 0.5); text-align: center; overflow: hidden; left: 0; right: 0; margin: auto; width: 840px; height: auto; ${position}: 2%;`;
 
                     const span = document.createElement('span');
                     span.className = 'captions-text';
@@ -36,14 +40,12 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 
                     const innerInnerSpan = document.createElement('span');
                     innerInnerSpan.className = 'ytp-caption-segment';
-                    innerInnerSpan.style.cssText = 'display: inline-block; white-space: pre-wrap; background: rgba(8, 8, 8, 0.75); font-size: 32px; color: rgba(255, 255, 255, 0.5); fill: rgba(255, 255, 255, 0.5); font-family: "YouTube Noto", Roboto, "Arial Unicode Ms", Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif; text-align: center;';
+                    innerInnerSpan.style.cssText = `display: inline-block; white-space: pre-wrap; background: rgba(8, 8, 8, 0.75); font-size: ${fontSize}; color: ${color}; fill: ${color}; font-family: "YouTube Noto", Roboto, "Arial Unicode Ms", Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif; text-align: center;`;
+
                     // Find the caption that should be displayed at the current time
                     const caption = subtitles.find(({ startTime, endTime }) => currentTime >= startTime && currentTime <= endTime);
-                    let currentCaption = caption ? caption.text : '';
-                    console.log(currentCaption);
                     innerInnerSpan.textContent = caption ? caption.text : '';
-                    
-              
+
                     innerSpan.appendChild(innerInnerSpan);
                     span.appendChild(innerSpan);
                     newDiv.appendChild(span);
@@ -67,7 +69,7 @@ function getCurrentCaption(currentTime) {
 // Event Listener for timeupdate event on the video element
 // This function will be called every time the video's current time is updated, and will update the caption displayed on the video
 function handleCaptionUpdate(event) {
-    if (subtitles.length == 0) return; // Return if no subtitles are available
+    if (subtitles.length === 0) return; // Return if no subtitles are available
     const video = event.target;
     const currentTime = video.currentTime;
 
@@ -86,7 +88,13 @@ function handleCaptionUpdate(event) {
     if (captionContainer.innerText !== currentCaption.text) {
         // Clear existing caption
         captionContainer.innerHTML = '';
-
+        // Load all the saved settings from the storage
+        // Load saved state
+        chrome.storage.sync.get(['color', 'fontSize', 'position'], (result) => {
+            color = result.color || '#ffffff';
+            fontSize = result.fontSize || '32px';
+            position = result.position || 'bottom';
+        });
         // Create new span element for the current caption
         const span = document.createElement('span');
         span.className = 'captions-text';
@@ -98,15 +106,14 @@ function handleCaptionUpdate(event) {
 
         const innerInnerSpan = document.createElement('span');
         innerInnerSpan.className = 'ytp-caption-segment';
-        innerInnerSpan.style.cssText = 'display: inline-block; white-space: pre-wrap; background: rgba(8, 8, 8, 0.75); font-size: 32px; color: rgba(255, 255, 255, 0.5); fill: rgba(255, 255, 255, 0.5); font-family: "YouTube Noto", Roboto, "Arial Unicode Ms", Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif; text-align: center;';
+        innerInnerSpan.style.cssText = `display: inline-block; white-space: pre-wrap; background: rgba(8, 8, 8, 0.75); font-size: ${fontSize}; color: ${color}; fill: ${color}; font-family: "YouTube Noto", Roboto, "Arial Unicode Ms", Arial, Helvetica, Verdana, "PT Sans Caption", sans-serif; text-align: center;`;
         innerInnerSpan.textContent = currentCaption.text;
 
         innerSpan.appendChild(innerInnerSpan);
         span.appendChild(innerSpan);
         captionContainer.appendChild(span);
     }
-};
-
+}
 
 async function fetchSrtFromUrl(url) {
     try {
@@ -123,7 +130,6 @@ async function fetchSrtFromUrl(url) {
 
 function parseSrt(srtContent) {
     const subtitleRegex = /(\d+)\n(\d+:\d+:\d+,\d+) --> (\d+:\d+:\d+,\d+)\n([\s\S]*?)(?=\n\d+\n\d+:\d+:\d+,\d+|\n$)/g;
-    // I'm not going to even begin to take credit for that regex. GPT did it.
     let match;
     const subtitles = [];
 

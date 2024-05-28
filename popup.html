@@ -26,9 +26,9 @@
     .section {
       margin-bottom: 10px;
     }
-    input[type="file"] {
-      width: 90%;
-      padding: 10px;
+    input[type="file"], input[type="text"], select {
+      width: 100%;
+      padding: 5px;
       margin-bottom: 10px;
       font-size: 16px;
       border: 1px solid #ccc;
@@ -99,12 +99,34 @@
       <input type="text" id="urlInput" placeholder="Enter URL">
     </div>
     <div class="section">
-        <div class="section" style="text-align: center;">
-            <span>Or</span>
-        </div>
-<div class="section">
-      <label for="fileInput">Upload SRT File:</label>
-      <input type="file" id="fileInput" accept=".srt">
+      <div class="section" style="text-align: center;">
+        <span>Or</span>
+      </div>
+      <div class="section">
+        <label for="fileInput">Upload SRT File:</label>
+        <input type="file" id="fileInput" accept=".srt">
+      </div>
+    </div>
+    <div class="section">
+      <label for="colorPicker">Subtitle Color:</label>
+      <input type="color" id="colorPicker" value="#ffffff">
+    </div>
+    <div class="section">
+      <label for="fontSize">Font Size:</label>
+      <select id="fontSize">
+        <option value="16px">16px</option>
+        <option value="24px">24px</option>
+        <option value="32px" selected>32px</option>
+        <option value="40px">40px</option>
+        <option value="48px">48px</option>
+      </select>
+    </div>
+    <div class="section">
+      <label for="position">Position:</label>
+      <select id="position">
+        <option value="bottom">Bottom</option>
+        <option value="top">Top</option>
+      </select>
     </div>
     <div class="section" style="text-align: center;">
       <span>Enable Captions</span>
