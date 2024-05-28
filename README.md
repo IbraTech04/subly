@@ -27,4 +27,6 @@ Several. This is still in development, and the posted version is a very early Po
 - The extension is not very user friendly. I'm working on that
 - The extension currently only supports SRT Files. In the future, I'd like to support other formats
 - I havent finalized the icons and UI. I'm working on that
-- Probably lots of other stuff that I'm not aware of. If you find something wrong, please open an issue!
+- Probably lots of other stuff that I'm not aware of. If you find something wrong, please open an issue!\
+
+At some point, I intend on rewriting this PoC into something actually usable. But this is *good enough* for now.
