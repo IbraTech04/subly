@@ -1,122 +1,278 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>YouTube Caption Injector</title>
+  <meta charset="utf-8">
   <style>
     body {
       width: 300px;
-      padding: 10px;
+      padding: 20px;
       font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
     }
-    .title-bar {
-      background-color: #4285F4;
-      color: white;
-      padding: 10px;
+    
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    .file-input-container {
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 20px;
       text-align: center;
-      font-size: 20px;
-      border-radius: 4px 4px 0 0;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: border-color 0.3s;
     }
-    .content {
+    
+    .file-input-container:hover {
+      border-color: #007cba;
+    }
+    
+    .file-input-container.dragover {
+      border-color: #007cba;
+      background-color: #f0f8ff;
+    }
+    
+    #fileInput {
+      display: none;
+    }
+    
+    .file-label {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .load-btn {
+      background: #007cba;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 14px;
+    }
+    
+    .load-btn:hover {
+      background: #005a87;
+    }
+    
+    .load-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    
+    .status {
+      margin-top: 10px;
       padding: 10px;
-      background-color: white;
-      border: 1px solid #ddd;
-      border-radius: 0 0 4px 4px;
+      border-radius: 4px;
+      font-size: 14px;
     }
-    .section {
-      margin-bottom: 10px;
+    
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
     }
-    input[type="file"] {
-      width: 90%;
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 16px;
+      .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .url-input-container {
+      margin: 15px 0;
+      display: flex;
+      gap: 8px;
+    }
+
+    #urlInput {
+      flex-grow: 1;
+      padding: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
-    }
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 60px;
-      height: 34px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: .4s;
-    }
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 26px;
-      width: 26px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
-    }
-    input:checked + .slider {
-      background-color: #2196F3;
-    }
-    input:checked + .slider:before {
-      transform: translateX(26px);
-    }
-    .slider.round {
-      border-radius: 34px;
-    }
-    .slider.round:before {
-      border-radius: 50%;
-    }
-    .author {
       font-size: 14px;
+    }
+
+    .fetch-btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .fetch-btn:hover {
+      background: #45a049;
+    }    .fetch-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .settings-container {
+      margin-top: 15px;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+    }
+
+    .settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .settings-header h3 {
+      margin: 0;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .toggle-settings {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .toggle-settings:hover {
+      background: #f0f0f0;
+    }
+
+    .settings-panel {
+      display: none;
+      background: #f8f9fa;
+      border-radius: 4px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .settings-panel.visible {
+      display: block;
+    }
+
+    .setting-group {
+      margin-bottom: 12px;
+    }
+
+    .setting-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .setting-group label {
+      display: block;
+      margin-bottom: 6px;
       color: #555;
-      text-align: center;
+      font-size: 13px;
     }
-    .author a {
-      color: #4285F4;
-      text-decoration: none;
+
+    .setting-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .author a:hover {
-      text-decoration: underline;
+
+    .setting-btn {
+      background: #e9ecef;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .setting-btn:hover {
+      background: #dee2e6;
+    }
+
+    .setting-select {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .color-picker {
+      width: 100%;
+      height: 30px;
+      padding: 0;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .keyboard-shortcut {
+      color: #6c757d;
+      font-size: 12px;
+      margin-left: 4px;
     }
   </style>
 </head>
 <body>
-  <div class="title-bar">YouTube Caption Inserter</div>
-  <div class="content">
-    <div class="section">
-      <label for="urlInput">Enter SRT URL:</label>
-      <input type="text" id="urlInput" placeholder="Enter URL">
+  <div class="title">SRT Subtitle Injector</div>
+    <div class="file-input-container" id="dropArea">
+    <input type="file" id="fileInput" accept=".srt" />
+    <div class="file-label">
+      Click here or drag & drop your SRT file
     </div>
-    <div class="section">
-        <div class="section" style="text-align: center;">
-            <span>Or</span>
+  </div>
+
+  <div class="url-input-container">
+    <input type="text" id="urlInput" placeholder="Or paste SRT file URL here" />
+    <button class="fetch-btn" id="fetchBtn">Fetch SRT</button>
+  </div>
+    <button class="load-btn" id="loadBtn" disabled>Load Subtitles</button>
+
+  <div class="settings-container">
+    <div class="settings-header">
+      <h3>Caption Settings</h3>
+      <button class="toggle-settings" id="toggleSettings">⚙️</button>
+    </div>
+    
+    <div class="settings-panel" id="settingsPanel">
+      <div class="setting-group">
+        <label>Font Size (Alt + Up/Down)</label>
+        <div class="setting-control">
+          <button class="setting-btn" data-action="decreaseSize">-</button>
+          <span id="fontSize">18</span>px
+          <button class="setting-btn" data-action="increaseSize">+</button>
         </div>
-<div class="section">
-      <label for="fileInput">Upload SRT File:</label>
-      <input type="file" id="fileInput" accept=".srt">
-    </div>
-    <div class="section" style="text-align: center;">
-      <span>Enable Captions</span>
-      <label class="switch">
-        <input type="checkbox" id="toggleCaption">
-        <span class="slider round"></span>
-      </label>
+      </div>
+
+      <div class="setting-group">
+        <label>Position (Alt + W/S)</label>
+        <select id="position" class="setting-select">
+          <option value="bottom">Bottom</option>
+          <option value="top">Top</option>
+          <option value="middle">Middle</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label>Background Opacity (Alt + Left/Right)</label>
+        <div class="setting-control">
+          <button class="setting-btn" data-action="decreaseOpacity">-</button>
+          <span id="opacity">80</span>%
+          <button class="setting-btn" data-action="increaseOpacity">+</button>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label>Text Color</label>
+        <input type="color" id="textColor" value="#ffffff" class="color-picker">
+      </div>
     </div>
   </div>
-  <div class="author">
-    <p>Ibrahim Chehab (<a href="https://github.com/ibratech04" target="_blank">IbraTech04</a>)</p>
-  </div>
+  
+  <div id="status"></div>
+
   <script src="popup.js"></script>
 </body>
 </html>
