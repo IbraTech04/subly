@@ -4,14 +4,17 @@ class YouTubeSubtitleInjector {
     this.subtitles = [];
     this.currentSubtitle = null;
     this.subtitleElement = null;
-    this.updateInterval = null;
+    this.updateInterval = null;    
+    this.toggleButton = null;
+    this.subtitlesEnabled = true;
+    this.subtitlesLoaded = false;
     this.init();
   }
-  
-  init() {
+    init() {
     this.waitForVideo();
     this.listenForMessages();
     this.setupKeyboardShortcuts();
+    this.setupPlayerButton();
   }
   
   waitForVideo() {
@@ -35,24 +38,148 @@ class YouTubeSubtitleInjector {
       position: 'bottom',
       opacity: 80,
       textColor: '#ffffff'
-    };
-
-    // Load saved settings
-    chrome.storage.sync.get(['subtitleSettings'], (result) => {
+    };    // Load saved settings
+    chrome.storage.sync.get(['subtitleSettings', 'subtitlesEnabled'], (result) => {
       if (result.subtitleSettings) {
         this.settings = { ...this.settings, ...result.subtitleSettings };
       }
+      if (result.subtitlesEnabled !== undefined) {
+        this.subtitlesEnabled = result.subtitlesEnabled;
+      }
       this.applySettings();
+      this.updateButtonState();
     });
-    
-    // Find YouTube player container
+      // Find YouTube player container
     const playerContainer = document.querySelector('#movie_player, .html5-video-player');
     if (playerContainer) {
       playerContainer.style.position = 'relative';
       playerContainer.appendChild(this.subtitleElement);
     }
   }
-    listenForMessages() {
+
+  setupPlayerButton() {
+    // Wait for YouTube controls to load
+    const waitForControls = () => {
+      const rightControls = document.querySelector('.ytp-right-controls');
+      if (rightControls) {
+        this.injectToggleButton(rightControls);
+      } else {
+        setTimeout(waitForControls, 500);
+      }
+    };
+    waitForControls();
+  }
+
+  injectToggleButton(rightControls) {
+    // Remove existing button if it exists
+    if (this.toggleButton && this.toggleButton.parentNode) {
+      this.toggleButton.parentNode.removeChild(this.toggleButton);
+    }
+
+    // Create the toggle button
+    this.toggleButton = document.createElement('button');
+    this.toggleButton.id = 'subly-toggle-button';
+    this.toggleButton.className = 'ytp-button';
+    this.toggleButton.setAttribute('data-priority', '4');
+    this.toggleButton.setAttribute('aria-label', 'Toggle Subly subtitles');
+    this.toggleButton.setAttribute('title', 'Toggle Subly subtitles');    this.toggleButton.style.cssText = `
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border: none;
+      background: transparent;
+      cursor: default;
+      opacity: 0.3;
+      transition: opacity 0.2s ease;
+    `;    // Create SVG icon for the button
+    this.toggleButton.innerHTML = `
+      <svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%">
+        <path d="M8,8 C6.89,8 6,8.9 6,10 L6,26 C6,27.1 6.89,28 8,28 L28,28 C29.1,28 30,27.1 30,26 L30,10 C30,8.9 29.1,8 28,8 L8,8 Z M10,12 L26,12 L26,14 L10,14 L10,12 Z M10,16 L20,16 L20,18 L10,18 L10,16 Z M10,20 L24,20 L24,22 L10,22 L10,20 Z M26,18 L28,18 L28,20 L26,20 L26,18 Z" fill="#666" stroke="none"/>
+      </svg>
+    `;
+
+    // Add click event listener
+    this.toggleButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.toggleSubtitles();
+    });
+
+    // Insert the button before the subtitles button or at the beginning
+    const subtitlesButton = rightControls.querySelector('.ytp-subtitles-button');
+    if (subtitlesButton) {
+      rightControls.insertBefore(this.toggleButton, subtitlesButton);
+    } else {
+      rightControls.insertBefore(this.toggleButton, rightControls.firstChild);
+    }
+  }
+  toggleSubtitles() {
+    if (!this.subtitlesLoaded) return; // Only allow toggle if subtitles are loaded
+    
+    this.subtitlesEnabled = !this.subtitlesEnabled;
+    this.updateButtonState();
+    
+    if (!this.subtitlesEnabled) {
+      this.hideSubtitle();
+      this.currentSubtitle = null;
+    }
+    
+    // Save state
+    chrome.storage.sync.set({ subtitlesEnabled: this.subtitlesEnabled });
+  }
+  updateButtonState() {
+    if (!this.toggleButton) return;
+    
+    const isActive = this.subtitlesLoaded && this.subtitlesEnabled;
+    const isLoaded = this.subtitlesLoaded;
+    
+    // Update button opacity and cursor
+    this.toggleButton.style.opacity = isLoaded ? (isActive ? '1' : '0.7') : '0.3';
+    this.toggleButton.style.cursor = isLoaded ? 'pointer' : 'default';
+    
+    // Update aria labels and titles
+    let label, title;
+    if (!isLoaded) {
+      label = title = 'No Subly subtitles loaded';
+    } else if (isActive) {
+      label = title = 'Disable Subly subtitles (Alt+T)';
+    } else {
+      label = title = 'Enable Subly subtitles (Alt+T)';
+    }
+    
+    this.toggleButton.setAttribute('aria-label', label);
+    this.toggleButton.setAttribute('title', title);
+    
+    // Update the SVG icon
+    const path = this.toggleButton.querySelector('path');
+    const line = this.toggleButton.querySelector('line');
+    
+    if (path) {
+      if (!isLoaded) {
+        path.setAttribute('fill', '#666');
+      } else {
+        path.setAttribute('fill', '#fff');
+      }
+    }
+    
+    // Handle the disabled line
+    if (isLoaded && !this.subtitlesEnabled) {
+      if (!line) {
+        const svg = this.toggleButton.querySelector('svg');
+        const newLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        newLine.setAttribute('x1', '6');
+        newLine.setAttribute('y1', '6');
+        newLine.setAttribute('x2', '30');
+        newLine.setAttribute('y2', '30');
+        newLine.setAttribute('stroke', '#ff4444');
+        newLine.setAttribute('stroke-width', '2.5');
+        newLine.setAttribute('opacity', '0.9');
+        svg.appendChild(newLine);
+      }
+    } else {
+      if (line) line.remove();
+    }
+  }listenForMessages() {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.action === 'loadSubtitles') {
         this.loadSubtitles(message.srtContent);
@@ -60,17 +187,23 @@ class YouTubeSubtitleInjector {
       } else if (message.action === 'updateSettings') {
         this.updateSettings(message.settings);
         sendResponse({success: true});
+      } else if (message.action === 'toggleSubtitles') {
+        this.toggleSubtitles();
+        sendResponse({success: true, enabled: this.subtitlesEnabled});
       }
     });
   }
-  
-  loadSubtitles(srtContent) {
+    loadSubtitles(srtContent) {
     try {
       this.subtitles = SRTParser.parse(srtContent);
+      this.subtitlesLoaded = this.subtitles.length > 0;
       this.startSubtitleTracking();
+      this.updateButtonState();
       console.log(`Loaded ${this.subtitles.length} subtitles`);
     } catch (error) {
       console.error('Error parsing SRT:', error);
+      this.subtitlesLoaded = false;
+      this.updateButtonState();
     }
   }
   
@@ -85,8 +218,9 @@ class YouTubeSubtitleInjector {
       }
     }, 100); // Update every 100ms for smooth display
   }
-  
-  updateSubtitles() {
+    updateSubtitles() {
+    if (!this.subtitlesEnabled) return;
+    
     const currentTime = this.video.currentTime;
     
     // Find current subtitle
@@ -177,7 +311,6 @@ class YouTubeSubtitleInjector {
     // Save settings
     chrome.storage.sync.set({ subtitleSettings: this.settings });
   }
-
   // Update keyboard shortcuts to use smoother increments
   setupKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
@@ -208,6 +341,11 @@ class YouTubeSubtitleInjector {
         case 'S':
           this.updateSettings({ position: 'bottom' });
           break;
+        case 't':
+        case 'T':
+          e.preventDefault();
+          this.toggleSubtitles();
+          break;
       }
     });
   }
@@ -225,6 +363,9 @@ function cleanup() {
         }
         if (injector.subtitleElement && injector.subtitleElement.parentNode) {
             injector.subtitleElement.parentNode.removeChild(injector.subtitleElement);
+        }
+        if (injector.toggleButton && injector.toggleButton.parentNode) {
+            injector.toggleButton.parentNode.removeChild(injector.toggleButton);
         }
         injector = null;
     }
@@ -255,7 +396,13 @@ let currentURL = location.href;
 navigationObserver = new MutationObserver(() => {
     if (location.href !== currentURL) {
         currentURL = location.href;
-        setTimeout(initialize, 1000);
+        setTimeout(() => {
+            initialize();
+            // Re-setup the button after navigation
+            if (injector) {
+                setTimeout(() => injector.setupPlayerButton(), 1000);
+            }
+        }, 1000);
     }
 });
 navigationObserver.observe(document, { subtree: true, childList: true });
@@ -270,8 +417,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (!chrome.runtime.id) {
             cleanup();
             return false;
-        }
-        // Your existing message handling code will be called through the injector instance
+        }        // Your existing message handling code will be called through the injector instance
         if (injector) {
             if (message.action === 'loadSubtitles') {
                 injector.loadSubtitles(message.srtContent);
@@ -279,6 +425,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             } else if (message.action === 'updateSettings') {
                 injector.updateSettings(message.settings);
                 sendResponse({success: true});
+            } else if (message.action === 'toggleSubtitles') {
+                injector.toggleSubtitles();
+                sendResponse({success: true, enabled: injector.subtitlesEnabled});
             }
         }
     } catch (e) {

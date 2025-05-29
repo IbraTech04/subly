@@ -4,35 +4,55 @@
   <meta charset="utf-8">
   <style>
     body {
-      width: 300px;
-      padding: 20px;
-      font-family: Arial, sans-serif;
+      width: 320px;
+      padding: 24px;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #ff4444 0%, #e73c3c 100%);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(231, 60, 60, 0.3);
+      margin: 0;
     }
     
     .title {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 15px;
-      color: #333;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: white;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      letter-spacing: -0.5px;
+    }
+    
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
     .file-input-container {
-      border: 2px dashed #ccc;
-      border-radius: 8px;
-      padding: 20px;
+      border: 2px dashed #ff4444;
+      border-radius: 12px;
+      padding: 24px;
       text-align: center;
-      margin-bottom: 15px;
       cursor: pointer;
-      transition: border-color 0.3s;
+      transition: all 0.3s ease;
+      background: rgba(255, 68, 68, 0.05);
     }
     
     .file-input-container:hover {
-      border-color: #007cba;
+      border-color: #e73c3c;
+      background: rgba(255, 68, 68, 0.1);
+      transform: translateY(-2px);
     }
     
     .file-input-container.dragover {
-      border-color: #007cba;
-      background-color: #f0f8ff;
+      border-color: #e73c3c;
+      background: rgba(255, 68, 68, 0.15);
+      transform: scale(1.02);
     }
     
     #fileInput {
@@ -42,123 +62,162 @@
     .file-label {
       color: #666;
       font-size: 14px;
+      font-weight: 500;
     }
     
     .load-btn {
-      background: #007cba;
+      background: linear-gradient(135deg, #ff4444 0%, #e73c3c 100%);
       color: white;
       border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
+      padding: 14px 24px;
+      border-radius: 8px;
       cursor: pointer;
       width: 100%;
-      font-size: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
     }
     
     .load-btn:hover {
-      background: #005a87;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 68, 68, 0.4);
     }
     
     .load-btn:disabled {
       background: #ccc;
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
     
     .status {
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 4px;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
       font-size: 14px;
+      font-weight: 500;
     }
     
     .status.success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
     }
-      .status.error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
+    
+    .status.error {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
     }
 
     .url-input-container {
-      margin: 15px 0;
+      margin: 16px 0;
       display: flex;
-      gap: 8px;
+      gap: 10px;
     }
 
     #urlInput {
       flex-grow: 1;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
       font-size: 14px;
+      transition: border-color 0.3s ease;
+      background: white;
+    }
+
+    #urlInput:focus {
+      outline: none;
+      border-color: #ff4444;
+      box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
     }
 
     .fetch-btn {
-      background: #4CAF50;
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
       color: white;
       border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
+      padding: 12px 18px;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
     }
 
     .fetch-btn:hover {
-      background: #45a049;
-    }    .fetch-btn:disabled {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+    }
+
+    .fetch-btn:disabled {
       background: #ccc;
       cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
     }
 
     .settings-container {
-      margin-top: 15px;
-      border-top: 1px solid #eee;
-      padding-top: 15px;
+      margin-top: 8px;
     }
 
     .settings-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .settings-header h3 {
       margin: 0;
-      font-size: 16px;
+      font-size: 18px;
       color: #333;
+      font-weight: 600;
     }
 
     .toggle-settings {
-      background: none;
-      border: none;
-      font-size: 20px;
+      background: rgba(255, 68, 68, 0.1);
+      border: 2px solid rgba(255, 68, 68, 0.2);
+      border-radius: 8px;
+      font-size: 18px;
       cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 4px;
+      padding: 8px 12px;
+      transition: all 0.3s ease;
     }
 
     .toggle-settings:hover {
-      background: #f0f0f0;
+      background: rgba(255, 68, 68, 0.2);
+      transform: rotate(90deg);
     }
 
     .settings-panel {
       display: none;
-      background: #f8f9fa;
-      border-radius: 4px;
-      padding: 12px;
-      margin-top: 10px;
+      background: rgba(255, 68, 68, 0.05);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+      border: 1px solid rgba(255, 68, 68, 0.1);
     }
 
     .settings-panel.visible {
       display: block;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .setting-group {
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
 
     .setting-group:last-child {
@@ -167,111 +226,191 @@
 
     .setting-group label {
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       color: #555;
       font-size: 13px;
+      font-weight: 600;
     }
 
     .setting-control {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
 
     .setting-btn {
-      background: #e9ecef;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      padding: 4px 8px;
+      background: white;
+      border: 2px solid #ff4444;
+      border-radius: 6px;
+      padding: 6px 12px;
       cursor: pointer;
       font-size: 14px;
+      font-weight: 600;
+      color: #ff4444;
+      transition: all 0.3s ease;
+      min-width: 36px;
     }
 
     .setting-btn:hover {
-      background: #dee2e6;
+      background: #ff4444;
+      color: white;
+      transform: scale(1.05);
     }
 
     .setting-select {
       width: 100%;
-      padding: 6px;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
       font-size: 14px;
+      background: white;
+      transition: border-color 0.3s ease;
+    }
+
+    .setting-select:focus {
+      outline: none;
+      border-color: #ff4444;
+      box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
     }
 
     .color-picker {
       width: 100%;
-      height: 30px;
+      height: 40px;
       padding: 0;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
       cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .color-picker:hover {
+      border-color: #ff4444;
+      transform: scale(1.02);
     }
 
     .keyboard-shortcut {
-      color: #6c757d;
-      font-size: 12px;
+      color: #999;
+      font-size: 11px;
       margin-left: 4px;
+      font-weight: 500;
+    }
+
+    .subtitle-status {
+      border: 2px solid #ddd;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .subtitle-status.enabled {
+      border-color: #4CAF50;
+      background: rgba(76, 175, 80, 0.1);
+    }
+
+    .subtitle-status.disabled {
+      border-color: #ff9800;
+      background: rgba(255, 152, 0, 0.1);
+    }
+
+    .toggle-subtitles-btn {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    }
+
+    .toggle-subtitles-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
+
+    .toggle-subtitles-btn.disabled {
+      background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+      box-shadow: 0 2px 8px rgba(255, 87, 34, 0.3);
+    }
+
+    #fontSize, #opacity {
+      color: #ff4444;
+      font-weight: 600;
+      min-width: 20px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="title">SRT Subtitle Injector</div>
+  <div class="title">Subly</div>
+  
+  <div class="card">
     <div class="file-input-container" id="dropArea">
-    <input type="file" id="fileInput" accept=".srt" />
-    <div class="file-label">
-      Click here or drag & drop your SRT file
+      <input type="file" id="fileInput" accept=".srt" />
+      <div class="file-label">
+        📁 Click here or drag & drop your SRT file
+      </div>
     </div>
-  </div>
 
-  <div class="url-input-container">
-    <input type="text" id="urlInput" placeholder="Or paste SRT file URL here" />
-    <button class="fetch-btn" id="fetchBtn">Fetch SRT</button>
-  </div>
-    <button class="load-btn" id="loadBtn" disabled>Load Subtitles</button>
-
-  <div class="settings-container">
-    <div class="settings-header">
-      <h3>Caption Settings</h3>
-      <button class="toggle-settings" id="toggleSettings">⚙️</button>
+    <div class="url-input-container">
+      <input type="text" id="urlInput" placeholder="Or paste SRT file URL here" />
+      <button class="fetch-btn" id="fetchBtn">Fetch</button>
     </div>
     
-    <div class="settings-panel" id="settingsPanel">
-      <div class="setting-group">
-        <label>Font Size (Alt + Up/Down)</label>
-        <div class="setting-control">
-          <button class="setting-btn" data-action="decreaseSize">-</button>
-          <span id="fontSize">18</span>px
-          <button class="setting-btn" data-action="increaseSize">+</button>
+    <button class="load-btn" id="loadBtn" disabled>Load Subtitles</button>
+
+    <div class="subtitle-status" id="subtitleStatus" style="margin: 15px 0; padding: 12px; text-align: center; display: none;">
+      <div class="status-text" id="statusText">✅ Subtitles loaded</div>
+      <button class="toggle-subtitles-btn" id="toggleSubtitlesBtn" style="margin-top: 10px; padding: 8px 16px;">
+        Disable (Alt+T)
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="settings-container">
+      <div class="settings-header">
+        <h3>Caption Settings</h3>
+        <button class="toggle-settings" id="toggleSettings">⚙️</button>
+      </div>
+      
+      <div class="settings-panel" id="settingsPanel">
+        <div class="setting-group">
+          <label>Font Size <span class="keyboard-shortcut">(Alt + Up/Down)</span></label>
+          <div class="setting-control">
+            <button class="setting-btn" data-action="decreaseSize">−</button>
+            <span id="fontSize">18</span>px
+            <button class="setting-btn" data-action="increaseSize">+</button>
+          </div>
         </div>
-      </div>
 
-      <div class="setting-group">
-        <label>Position (Alt + W/S)</label>
-        <select id="position" class="setting-select">
-          <option value="bottom">Bottom</option>
-          <option value="top">Top</option>
-          <option value="middle">Middle</option>
-        </select>
-      </div>
-
-      <div class="setting-group">
-        <label>Background Opacity (Alt + Left/Right)</label>
-        <div class="setting-control">
-          <button class="setting-btn" data-action="decreaseOpacity">-</button>
-          <span id="opacity">80</span>%
-          <button class="setting-btn" data-action="increaseOpacity">+</button>
+        <div class="setting-group">
+          <label>Position <span class="keyboard-shortcut">(Alt + W/S)</span></label>
+          <select id="position" class="setting-select">
+            <option value="bottom">Bottom</option>
+            <option value="top">Top</option>
+            <option value="middle">Middle</option>
+          </select>
         </div>
-      </div>
 
-      <div class="setting-group">
-        <label>Text Color</label>
-        <input type="color" id="textColor" value="#ffffff" class="color-picker">
+        <div class="setting-group">
+          <label>Background Opacity <span class="keyboard-shortcut">(Alt + Left/Right)</span></label>
+          <div class="setting-control">
+            <button class="setting-btn" data-action="decreaseOpacity">−</button>
+            <span id="opacity">80</span>%
+            <button class="setting-btn" data-action="increaseOpacity">+</button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label>Text Color</label>
+          <input type="color" id="textColor" value="#ffffff" class="color-picker">
+        </div>
       </div>
     </div>
   </div>
-  
-  <div id="status"></div>
+    <div id="status"></div>
 
   <script src="popup.js"></script>
 </body>

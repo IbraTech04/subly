@@ -11,9 +11,11 @@ class PopupController {
     this.settingsPanel = document.getElementById('settingsPanel');
     this.toggleSettings = document.getElementById('toggleSettings');
     this.fontSize = document.getElementById('fontSize');
-    this.position = document.getElementById('position');
-    this.opacity = document.getElementById('opacity');
+    this.position = document.getElementById('position');    this.opacity = document.getElementById('opacity');
     this.textColor = document.getElementById('textColor');
+    this.subtitleStatus = document.getElementById('subtitleStatus');
+    this.statusText = document.getElementById('statusText');
+    this.toggleSubtitlesBtn = document.getElementById('toggleSubtitlesBtn');
     this.updateTimeout = null;
     
     this.init();
@@ -30,9 +32,8 @@ class PopupController {
       this.updateTimeout = setTimeout(() => func.apply(this, args), wait);
     };
   }
-
   async loadSettings() {
-    const result = await chrome.storage.sync.get(['subtitleSettings']);
+    const result = await chrome.storage.sync.get(['subtitleSettings', 'subtitlesEnabled']);
     const settings = result.subtitleSettings || {
       fontSize: 18,
       position: 'bottom',
@@ -45,6 +46,9 @@ class PopupController {
     this.position.value = settings.position;
     this.opacity.textContent = settings.opacity;
     this.textColor.value = settings.textColor;
+    
+    // Update subtitle status
+    this.updateSubtitleStatus(result.subtitlesEnabled !== false);
   }
 
   setupEventListeners() {
@@ -96,13 +100,13 @@ class PopupController {
     // Settings toggle
     this.toggleSettings.addEventListener('click', () => {
       this.settingsPanel.classList.toggle('visible');
-    });
-
-    // Font size controls with real-time updates
+    });    // Font size controls with real-time updates
     document.querySelectorAll('[data-action="increaseSize"], [data-action="decreaseSize"]').forEach(btn => {
       btn.addEventListener('click', () => {
         const currentSize = parseInt(this.fontSize.textContent);
-        const newSize = btn.dataset.action === 'increaseSize' ? currentSize + 1 : Math.max(8, currentSize - 1);
+        const newSize = btn.dataset.action === 'increaseSize' ? 
+          Math.min(32, currentSize + 2) : 
+          Math.max(12, currentSize - 2);
         this.fontSize.textContent = newSize;
         this.debouncedUpdateSetting('fontSize', newSize);
       });
@@ -123,11 +127,14 @@ class PopupController {
     // Position select with immediate update
     this.position.addEventListener('change', (e) => {
       this.updateSetting('position', e.target.value);
-    });
-
-    // Text color with real-time updates
+    });    // Text color with real-time updates
     this.textColor.addEventListener('input', (e) => {
       this.debouncedUpdateSetting('textColor', e.target.value);
+    });
+
+    // Toggle subtitles button
+    this.toggleSubtitlesBtn.addEventListener('click', () => {
+      this.toggleSubtitles();
     });
 
     // Initialize debounced update function
@@ -200,13 +207,13 @@ class PopupController {
         this.loadBtn.disabled = false;
         return;
       }
-      
-      await chrome.tabs.sendMessage(tab.id, {
+        await chrome.tabs.sendMessage(tab.id, {
         action: 'loadSubtitles',
         srtContent: srtContent
       });
       
       this.showStatus('Subtitles loaded successfully!', 'success');
+      this.updateSubtitleStatus(true); // Show subtitle status as enabled
       
       // Auto-close popup after 2 seconds
       setTimeout(() => {
@@ -265,9 +272,7 @@ class PopupController {
       case 'textColor':
         this.textColor.value = value;
         break;
-    }
-
-    // Update active tab if on YouTube
+    }    // Update active tab if on YouTube
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     if (tab?.url?.includes('youtube.com')) {
       await chrome.tabs.sendMessage(tab.id, {
@@ -275,6 +280,37 @@ class PopupController {
         settings: settings
       });
     }
+  }
+
+  async toggleSubtitles() {
+    try {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (tab?.url?.includes('youtube.com')) {
+        const response = await chrome.tabs.sendMessage(tab.id, {
+          action: 'toggleSubtitles'
+        });
+        
+        if (response && response.success) {
+          this.updateSubtitleStatus(response.enabled);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling subtitles:', error);
+      this.showStatus('Error: Please ensure you\'re on a YouTube page', 'error');
+    }
+  }
+
+  updateSubtitleStatus(enabled) {
+    if (!this.subtitleStatus) return;
+    
+    this.subtitleStatus.style.display = 'block';
+    this.subtitleStatus.className = `subtitle-status ${enabled ? 'enabled' : 'disabled'}`;
+    
+    this.statusText.textContent = enabled ? 'Subtitles enabled' : 'Subtitles disabled';
+    
+    this.toggleSubtitlesBtn.textContent = enabled ? 'Disable (Alt+T)' : 'Enable (Alt+T)';
+    this.toggleSubtitlesBtn.className = `toggle-subtitles-btn ${enabled ? '' : 'disabled'}`;
+    this.toggleSubtitlesBtn.style.background = enabled ? '#4CAF50' : '#ff5722';
   }
 }
 
