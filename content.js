@@ -252,12 +252,48 @@ class YouTubeSubtitleInjector {
       this.currentSubtitle = null;
     }
   }
-
   showSubtitle(text) {
     if (this.subtitleElement) {
-      this.subtitleElement.textContent = text;
+      this.subtitleElement.innerHTML = this.sanitizeHTML(text);
       this.subtitleElement.style.display = "block";
     }
+  }
+
+  sanitizeHTML(text) {
+    // Allow only safe subtitle HTML tags
+    const allowedTags = ['i', 'b', 'u', 'strong', 'em', 'br', 'font'];
+    const allowedAttributes = ['color', 'size', 'face'];
+    
+    // Create a temporary element to parse the HTML
+    const temp = document.createElement('div');
+    temp.innerHTML = text;
+    
+    // Remove any script tags or other dangerous elements
+    const scripts = temp.querySelectorAll('script, object, embed, iframe, link, meta, style');
+    scripts.forEach(script => script.remove());
+    
+    // Remove attributes from allowed tags except for font tag
+    const allElements = temp.querySelectorAll('*');
+    allElements.forEach(element => {
+      if (!allowedTags.includes(element.tagName.toLowerCase())) {
+        // Replace disallowed tags with their text content
+        element.replaceWith(document.createTextNode(element.textContent));
+      } else if (element.tagName.toLowerCase() === 'font') {
+        // For font tags, only keep allowed attributes
+        const attrs = Array.from(element.attributes);
+        attrs.forEach(attr => {
+          if (!allowedAttributes.includes(attr.name.toLowerCase())) {
+            element.removeAttribute(attr.name);
+          }
+        });
+      } else {
+        // For other allowed tags, remove all attributes
+        const attrs = Array.from(element.attributes);
+        attrs.forEach(attr => element.removeAttribute(attr.name));
+      }
+    });
+    
+    return temp.innerHTML;
   }
 
   hideSubtitle() {
@@ -279,9 +315,7 @@ class YouTubeSubtitleInjector {
     const transform =
       this.settings.position === "middle"
         ? "translate(-50%, -50%)"
-        : "translateX(-50%)";
-
-    this.subtitleElement.style.cssText = `
+        : "translateX(-50%)";    this.subtitleElement.style.cssText = `
       position: absolute;
       top: ${position};
       bottom: ${bottom};
@@ -302,6 +336,27 @@ class YouTubeSubtitleInjector {
       transition: all 0.3s ease-out;
       transition-property: font-size, color, background-color, top, bottom, transform;
     `;
+    
+    // Add styles for HTML elements within subtitles
+    if (!document.getElementById('subtitle-html-styles')) {
+      const styleSheet = document.createElement('style');
+      styleSheet.id = 'subtitle-html-styles';
+      styleSheet.textContent = `
+        #custom-subtitles i, #custom-subtitles em {
+          font-style: italic;
+        }
+        #custom-subtitles b, #custom-subtitles strong {
+          font-weight: bold;
+        }
+        #custom-subtitles u {
+          text-decoration: underline;
+        }
+        #custom-subtitles br {
+          line-height: 1.2;
+        }
+      `;
+      document.head.appendChild(styleSheet);
+    }
   }
 
   updateSettings(newSettings) {
@@ -392,12 +447,18 @@ function cleanup() {
     }
     if (injector.subtitleElement && injector.subtitleElement.parentNode) {
       injector.subtitleElement.parentNode.removeChild(injector.subtitleElement);
-    }
-    if (injector.toggleButton && injector.toggleButton.parentNode) {
+    }    if (injector.toggleButton && injector.toggleButton.parentNode) {
       injector.toggleButton.parentNode.removeChild(injector.toggleButton);
     }
     injector = null;
   }
+  
+  // Clean up subtitle HTML styles
+  const subtitleStyles = document.getElementById('subtitle-html-styles');
+  if (subtitleStyles) {
+    subtitleStyles.remove();
+  }
+  
   if (navigationObserver) {
     navigationObserver.disconnect();
     navigationObserver = null;

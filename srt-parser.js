@@ -31,7 +31,8 @@ class SRTParser {
             index,
             startTime,
             endTime,
-            text: text.replace(/<[^>]*>/g, ""), // Remove HTML tags
+            // text: text.replace(/<[^>]*>/g, ""), // Remove HTML tags
+            text
           });
         }
       }
