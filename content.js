@@ -22,6 +22,7 @@ class YouTubeSubtitleInjector {
       this.video = document.querySelector("video");
       if (this.video) {
         this.setupSubtitleDisplay();
+        this.autoLoadSubtitles();
       } else {
         setTimeout(checkVideo, 1000);
       }
@@ -100,7 +101,7 @@ class YouTubeSubtitleInjector {
     `; // Create SVG icon for the button
     this.toggleButton.innerHTML = `
       <svg height="100%" version="1.1" viewBox="0 0 36 36" width="100%">
-        <path d="M8,8 C6.89,8 6,8.9 6,10 L6,26 C6,27.1 6.89,28 8,28 L28,28 C29.1,28 30,27.1 30,26 L30,10 C30,8.9 29.1,8 28,8 L8,8 Z M10,12 L26,12 L26,14 L10,14 L10,12 Z M10,16 L20,16 L20,18 L10,18 L10,16 Z M10,20 L24,20 L24,22 L10,22 L10,20 Z M26,18 L28,18 L28,20 L26,20 L26,18 Z" fill="#666" stroke="none"/>
+        <path d="M8,8 C6.89,8 6,8.9 6,10 L6,26 C6,27.1 6.89,28 8,28 L28,28 C29.1,28 30,27.1 30,26 L30,10 C30,8.9 29.1,8 28,8 L8,8 Z M10,12 L26,12 L26,14 L10,14 L10,12 z M10,16 L20,16 L20,18 L10,18 L10,16 z M10,20 L24,20 L24,22 L10,22 L10,20 z M26,18 L28,18 L28,20 L26,20 L26,18 z" fill="#666" stroke="none"/>
       </svg>
     `;
 
@@ -122,7 +123,7 @@ class YouTubeSubtitleInjector {
     }
   }
   toggleSubtitles() {
-    if (!this.subtitlesLoaded) return; // Only allow toggle if subtitles are loaded
+    if (!this.subtitlesLoaded) return;
 
     this.subtitlesEnabled = !this.subtitlesEnabled;
     this.updateButtonState();
@@ -142,6 +143,7 @@ class YouTubeSubtitleInjector {
     const isLoaded = this.subtitlesLoaded;
 
     // Update button opacity and cursor
+    // I'm not gonna pretend like I know why this works, but it does
     this.toggleButton.style.opacity = isLoaded
       ? isActive
         ? "1"
@@ -432,6 +434,47 @@ class YouTubeSubtitleInjector {
           break;
       }
     });
+  }
+
+  async fetchConfig() {
+    try {
+      const response = await fetch(chrome.runtime.getURL('config.json'));
+      if (!response.ok) {
+        throw new Error('Failed to load config.json');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching config:', error);
+      return null;
+    }
+  }
+
+  async autoLoadSubtitles() {
+    try {
+      const config = await this.fetchConfig();
+      if (!config || !config.videoMappings) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const videoId = urlParams.get('v');
+
+      if (videoId && config.videoMappings[videoId]) {
+        const srtUrl = config.videoMappings[videoId];
+        const response = await fetch(srtUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch SRT from ${srtUrl}`);
+        }
+
+        const content = await response.text();
+        if (!content.includes('-->')) {
+          throw new Error('Invalid SRT format');
+        }
+
+        this.loadSubtitles(content);
+        console.log('Subtitles auto-loaded successfully');
+      }
+    } catch (error) {
+      console.error('Error auto-loading subtitles:', error);
+    }
   }
 }
 

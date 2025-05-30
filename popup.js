@@ -1,5 +1,4 @@
-class PopupController {
-  constructor() {
+class PopupController {  constructor() {
     this.fileInput = document.getElementById("fileInput");
     this.loadBtn = document.getElementById("loadBtn");
     this.status = document.getElementById("status");
@@ -21,6 +20,7 @@ class PopupController {
 
     this.init();
     this.loadSettings();
+    this.autoPopulateSubtitles();
   }
 
   init() {
@@ -350,6 +350,60 @@ class PopupController {
       enabled ? "" : "disabled"
     }`;
     this.toggleSubtitlesBtn.style.background = enabled ? "#4CAF50" : "#ff5722";
+  }
+
+  async fetchConfig() {
+    try {
+      const response = await fetch(chrome.runtime.getURL("config.json"));
+      if (!response.ok) {
+        throw new Error("Failed to load config.json");
+      }
+      return await response.json();
+    } catch (error) {
+      console.error("Error fetching config:", error);
+      return null;
+    }
+  }
+  async autoPopulateSubtitles() {
+    try {
+      const config = await this.fetchConfig();
+      if (!config || !config.videoMappings) return;
+
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab.url.includes("youtube.com")) return;
+      
+      const urlParams = new URLSearchParams(new URL(tab.url).search);
+      const videoId = urlParams.get('v');
+
+      if (videoId && config.videoMappings[videoId]) {
+        const srtUrl = config.videoMappings[videoId];
+        this.showStatus('Auto-populating subtitles...', 'info');
+
+        const response = await fetch(srtUrl);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch SRT from ${srtUrl}`);
+        }
+
+        const content = await response.text();
+        if (!content.includes('-->')) {
+          throw new Error('Invalid SRT format');
+        }
+
+        this.srtContent = content;
+        this.selectedFile = null;
+        this.loadBtn.disabled = false;
+        this.dropArea.querySelector('.file-label').textContent = 'Auto-populated SRT file';
+        
+        // Show the GitHub URL in the URL input field
+        this.urlInput.value = srtUrl;
+        this.fetchBtn.disabled = false;
+        
+        this.showStatus('Subtitles auto-populated successfully!', 'success');
+      }
+    } catch (error) {
+      console.error('Error auto-populating subtitles:', error);
+      this.showStatus('Error auto-populating subtitles.', 'error');
+    }
   }
 }
 

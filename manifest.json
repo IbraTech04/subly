@@ -2,10 +2,8 @@
   "manifest_version": 3,
   "name": "Subly - YouTube Subtitle Injector",
   "version": "1.0",
-  "description": "Inject SRT subtitles into YouTube Videos!",  "permissions": [
-    "activeTab",
-    "storage"
-  ],
+  "description": "Inject SRT subtitles into YouTube Videos!",
+  "permissions": ["activeTab", "storage"],
   "content_scripts": [
     {
       "matches": ["*://www.youtube.com/watch*"],
@@ -21,5 +19,11 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["config.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
