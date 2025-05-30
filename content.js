@@ -82,7 +82,8 @@ class YouTubeSubtitleInjector {
     this.toggleButton.className = 'ytp-button';
     this.toggleButton.setAttribute('data-priority', '4');
     this.toggleButton.setAttribute('aria-label', 'Toggle Subly subtitles');
-    this.toggleButton.setAttribute('title', 'Toggle Subly subtitles');    this.toggleButton.style.cssText = `
+    this.toggleButton.setAttribute('title', 'Toggle Subly subtitles');    
+    this.toggleButton.style.cssText = `
       position: relative;
       width: 48px;
       height: 48px;
@@ -406,9 +407,6 @@ navigationObserver = new MutationObserver(() => {
     }
 });
 navigationObserver.observe(document, { subtree: true, childList: true });
-
-// Handle extension context invalidation
-chrome.runtime.onSuspend.addListener(cleanup);
 
 // Handle errors that might occur when the extension context is invalidated
 window.addEventListener('unload', cleanup);
