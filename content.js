@@ -510,7 +510,7 @@ function cleanup() {
 
 // Initialize when page loads
 function initialize() {
-  cleanup(); // Clean up any existing instance
+  cleanup(); 
   try {
     injector = new YouTubeSubtitleInjector();
   } catch (e) {
