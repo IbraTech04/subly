@@ -1,37 +1,89 @@
-<p align="center">
-    <h1>Subly</h1>
-    <img src="./icons/icon.png" alt="Subly Logo" width="500"/>
-</p>
+<div align="center">
+  <img src="./icons/icon.png" alt="Subly Logo" width="120" height="120"/>
+  
+  # Subly
+    
+  [![Chrome Extension](https://img.shields.io/badge/Chrome-Extension-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://github.com/yourusername/subly)
+  [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+  
+  *A powerful Chrome extension that injects your own SRT subtitles into YouTube videos*
+  
+  [🚀 Quick Start](#-installation) • [✨ Features](#-features) • [📖 Usage Guide](#-usage)
+  
+</div>
 
-A simple Chrome(ium) extension to inject your own SRT subtitles into YouTube videos!
+---
 
-Ever wanted to add your own subtitles to a YouTube video, or frustrated by missing captions? This extension lets you easily inject SRT subtitles—either from a file or a URL—directly into YouTube videos. Subtitles are displayed using YouTube’s native subtitle UI for a seamless experience.
+## Overview
 
-## Features
+Ever been frustrated by missing captions on YouTube videos? Or wanted to add your own custom subtitles for language learning, accessibility, or creative projects? **Subly** is here to revolutionize your YouTube viewing experience!
 
-- Inject SRT subtitles from a file or URL
-- Customizable subtitle appearance (With Chrome-sync between devices)
-- Works on any YouTube video
-- Native Integration with my [Sendokai Subtitles](https://github.com/IbraTech04/sendokai-subtitles) project!
-  - With this extension installed, English subtitles will automatically be added to any Sendokai episode that has a matching SRT file available on my repository! 
+This lightweight Chrome extension allows you to effortlessly inject SRT subtitle files directly into any YouTube video, displaying them using YouTube's native subtitle interface for a completely seamless experience.
 
-## Installation - Stable
+## ✨ Features
 
-_Chrome web store coming soon_
+<div align="center">
+  
+| 🎯 **Core Features** | 🎨 **Customization** | 🔗 **Integration** |
+|---------------------|----------------------|-------------------|
+| • SRT file upload support | • Customizable subtitle appearance | • Native YouTube UI integration |
+| • Direct URL subtitle loading | • Chrome sync across devices | • Auto-sync with Sendokai Subtitles |
+| • Works on any YouTube video | • Real-time preview | • Cross-platform compatibility |
+| • Drag & drop interface | • Multiple styling options | • Open source & extensible |
 
-## Installation - Dev
+</div>
 
-1. Clone this repository.
-2. Open your browser and navigate to the extensions page (e.g., `chrome://extensions/` or `edge://extensions/`).
-3. Enable Developer Mode.
-4. Click "Load Unpacked" and select the cloned repository folder.
-5. The extension is now installed!
+### 🎭 Special Integration: Sendokai Subtitles
 
-## Usage
+> Subly sports native integration with my [Sendokai Subtitles](https://github.com/IbraTech04/sendokai-subtitles) project!
+> 
+> When this extension is installed, English subtitles will automatically be added to any Sendokai episode that has matching SRT files available in the repository. No manual work required!
 
-1. Open any YouTube video.
-2. Click the extension icon to open the popup.
-3. Upload an SRT file or paste a URL to your SRT file and click "Fetch"
-4. Click "Load Subtitles". If all goes well, the subtitles will be injected into the video, and the subtitle settings will be applied! 
+## 🚀 Installation
 
-Your subtitles will appear as if they were native to YouTube. For best results, disable YouTube’s built-in subtitles!
+### 📦 Stable Release
+```bash
+# Chrome Web Store (Coming Soon!)
+🌐 Stay tuned for the official release
+```
+
+### 🛠️ Development Version
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/IbraTech04/subly
+   cd subly
+   ```
+
+2. **Open your browser's extension manager**
+   - **Chrome**: Navigate to `chrome://extensions/`
+   - **Edge**: Navigate to `edge://extensions/`
+   - **Brave**: Navigate to `brave://extensions/`
+
+3. **Enable Developer Mode**
+   - Toggle the "Developer mode" switch in the top-right corner
+
+4. **Load the extension**
+   - Click "Load unpacked"
+   - Select the cloned `subly` folder
+   - ✅ You're all set!
+
+## 📖 Usage
+
+### Quick Start Guide
+
+1. **📺 Open any YouTube video**
+   - Navigate to your favorite YouTube content
+
+2. **🔧 Access Subly**
+   - Click the Subly extension icon in your browser toolbar
+   - The intuitive popup interface will appear
+
+3. **📁 Load your subtitles**
+   - **Option A**: Upload an SRT file directly
+   - **Option B**: Paste a URL to your online SRT file then click "Fetch"
+
+4. **🎬 Inject subtitles**
+   - Click "Load Subtitles"
+   - Watch as your custom subtitles seamlessly integrate with YouTube's player!
+   - Subly *also* injects a button to toggle subtitles on/off in the native YouTube player!
