@@ -8,6 +8,8 @@ class YouTubeSubtitleInjector {
     this.toggleButton = null;
     this.subtitlesEnabled = true;
     this.subtitlesLoaded = false;
+    this.autoLoadInProgress = false;
+    this.lastVideoId = null;
     this.init();
   }
   init() {
@@ -16,15 +18,29 @@ class YouTubeSubtitleInjector {
     this.setupKeyboardShortcuts();
     this.setupPlayerButton();
   }
-
   waitForVideo() {
     const checkVideo = () => {
-      this.video = document.querySelector("video");
-      if (this.video) {
+      const newVideo = document.querySelector("video");
+      if (newVideo && newVideo !== this.video) {
+        console.log("New video element detected");
+        this.video = newVideo;
         this.setupSubtitleDisplay();
-        this.autoLoadSubtitles();
-      } else {
+        // Add a small delay to ensure video is fully loaded before auto-loading
+        setTimeout(() => this.autoLoadSubtitles(), 500);
+      } else if (!newVideo) {
         setTimeout(checkVideo, 1000);
+      } else if (newVideo === this.video) {
+        // Same video element, check if we need to auto-load for new URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentVideoId = urlParams.get("v");
+
+        if (currentVideoId && currentVideoId !== this.lastVideoId) {
+          console.log(
+            "Same video element but different video ID, auto-loading..."
+          );
+          this.lastVideoId = currentVideoId;
+          setTimeout(() => this.autoLoadSubtitles(), 500);
+        }
       }
     };
     checkVideo();
@@ -62,15 +78,16 @@ class YouTubeSubtitleInjector {
       playerContainer.appendChild(this.subtitleElement);
     }
   }
-
   setupPlayerButton() {
-    // Wait for YouTube controls to load
-    const waitForControls = () => {
+    // Wait for YouTube controls to load with increased retry attempts
+    const waitForControls = (attempts = 0) => {
       const rightControls = document.querySelector(".ytp-right-controls");
       if (rightControls) {
         this.injectToggleButton(rightControls);
+      } else if (attempts < 10) {
+        setTimeout(() => waitForControls(attempts + 1), 500);
       } else {
-        setTimeout(waitForControls, 500);
+        console.warn("Failed to find YouTube controls after multiple attempts");
       }
     };
     waitForControls();
@@ -213,11 +230,32 @@ class YouTubeSubtitleInjector {
   }
   loadSubtitles(srtContent) {
     try {
+      // Clear any existing subtitles first
+      this.subtitles = [];
+      this.currentSubtitle = null;
+      this.subtitlesLoaded = false;
+
+      // Stop any existing tracking
+      if (this.updateInterval) {
+        clearInterval(this.updateInterval);
+        this.updateInterval = null;
+      }
+
+      // Hide any currently visible subtitle
+      this.hideSubtitle();
+
+      // Parse new subtitles
       this.subtitles = SRTParser.parse(srtContent);
       this.subtitlesLoaded = this.subtitles.length > 0;
-      this.startSubtitleTracking();
+
+      if (this.subtitlesLoaded) {
+        this.startSubtitleTracking();
+        console.log(`Loaded ${this.subtitles.length} subtitles`);
+      } else {
+        console.warn("No subtitles were parsed from the content");
+      }
+
       this.updateButtonState();
-      console.log(`Loaded ${this.subtitles.length} subtitles`);
     } catch (error) {
       console.error("Error parsing SRT:", error);
       this.subtitlesLoaded = false;
@@ -263,27 +301,29 @@ class YouTubeSubtitleInjector {
 
   sanitizeHTML(text) {
     // Allow only safe subtitle HTML tags
-    const allowedTags = ['i', 'b', 'u', 'strong', 'em', 'br', 'font'];
-    const allowedAttributes = ['color', 'size', 'face'];
-    
+    const allowedTags = ["i", "b", "u", "strong", "em", "br", "font"];
+    const allowedAttributes = ["color", "size", "face"];
+
     // Create a temporary element to parse the HTML
-    const temp = document.createElement('div');
+    const temp = document.createElement("div");
     temp.innerHTML = text;
-    
+
     // Remove any script tags or other dangerous elements
-    const scripts = temp.querySelectorAll('script, object, embed, iframe, link, meta, style');
-    scripts.forEach(script => script.remove());
-    
+    const scripts = temp.querySelectorAll(
+      "script, object, embed, iframe, link, meta, style"
+    );
+    scripts.forEach((script) => script.remove());
+
     // Remove attributes from allowed tags except for font tag
-    const allElements = temp.querySelectorAll('*');
-    allElements.forEach(element => {
+    const allElements = temp.querySelectorAll("*");
+    allElements.forEach((element) => {
       if (!allowedTags.includes(element.tagName.toLowerCase())) {
         // Replace disallowed tags with their text content
         element.replaceWith(document.createTextNode(element.textContent));
-      } else if (element.tagName.toLowerCase() === 'font') {
+      } else if (element.tagName.toLowerCase() === "font") {
         // For font tags, only keep allowed attributes
         const attrs = Array.from(element.attributes);
-        attrs.forEach(attr => {
+        attrs.forEach((attr) => {
           if (!allowedAttributes.includes(attr.name.toLowerCase())) {
             element.removeAttribute(attr.name);
           }
@@ -291,10 +331,10 @@ class YouTubeSubtitleInjector {
       } else {
         // For other allowed tags, remove all attributes
         const attrs = Array.from(element.attributes);
-        attrs.forEach(attr => element.removeAttribute(attr.name));
+        attrs.forEach((attr) => element.removeAttribute(attr.name));
       }
     });
-    
+
     return temp.innerHTML;
   }
 
@@ -317,7 +357,8 @@ class YouTubeSubtitleInjector {
     const transform =
       this.settings.position === "middle"
         ? "translate(-50%, -50%)"
-        : "translateX(-50%)";    this.subtitleElement.style.cssText = `
+        : "translateX(-50%)";
+    this.subtitleElement.style.cssText = `
       position: absolute;
       top: ${position};
       bottom: ${bottom};
@@ -338,11 +379,11 @@ class YouTubeSubtitleInjector {
       transition: all 0.3s ease-out;
       transition-property: font-size, color, background-color, top, bottom, transform;
     `;
-    
+
     // Add styles for HTML elements within subtitles
-    if (!document.getElementById('subtitle-html-styles')) {
-      const styleSheet = document.createElement('style');
-      styleSheet.id = 'subtitle-html-styles';
+    if (!document.getElementById("subtitle-html-styles")) {
+      const styleSheet = document.createElement("style");
+      styleSheet.id = "subtitle-html-styles";
       styleSheet.textContent = `
         #custom-subtitles i, #custom-subtitles em {
           font-style: italic;
@@ -438,42 +479,63 @@ class YouTubeSubtitleInjector {
 
   async fetchConfig() {
     try {
-      const response = await fetch(chrome.runtime.getURL('config.json'));
+      const response = await fetch(chrome.runtime.getURL("config.json"));
       if (!response.ok) {
-        throw new Error('Failed to load config.json');
+        throw new Error("Failed to load config.json");
       }
       return await response.json();
     } catch (error) {
-      console.error('Error fetching config:', error);
+      console.error("Error fetching config:", error);
       return null;
     }
   }
-
   async autoLoadSubtitles() {
     try {
+      // Prevent multiple simultaneous auto-load attempts
+      if (this.autoLoadInProgress) {
+        console.log("Auto-load already in progress, skipping...");
+        return;
+      }
+
+      this.autoLoadInProgress = true;
+
       const config = await this.fetchConfig();
-      if (!config || !config.videoMappings) return;
+      if (!config || !config.videoMappings) {
+        console.log("No config or video mappings found");
+        this.autoLoadInProgress = false;
+        return;
+      }
 
       const urlParams = new URLSearchParams(window.location.search);
-      const videoId = urlParams.get('v');
+      const videoId = urlParams.get("v");
+
+      console.log("Checking auto-load for video ID:", videoId);
 
       if (videoId && config.videoMappings[videoId]) {
         const srtUrl = config.videoMappings[videoId];
+        console.log("Found mapping, fetching subtitles from:", srtUrl);
+
         const response = await fetch(srtUrl);
         if (!response.ok) {
-          throw new Error(`Failed to fetch SRT from ${srtUrl}`);
+          throw new Error(
+            `Failed to fetch SRT from ${srtUrl}: ${response.status}`
+          );
         }
 
         const content = await response.text();
-        if (!content.includes('-->')) {
-          throw new Error('Invalid SRT format');
+        if (!content.includes("-->")) {
+          throw new Error("Invalid SRT format - no timestamps found");
         }
 
         this.loadSubtitles(content);
-        console.log('Subtitles auto-loaded successfully');
+        console.log("Subtitles auto-loaded successfully for video:", videoId);
+      } else {
+        console.log("No subtitle mapping found for video ID:", videoId);
       }
     } catch (error) {
-      console.error('Error auto-loading subtitles:', error);
+      console.error("Error auto-loading subtitles:", error);
+    } finally {
+      this.autoLoadInProgress = false;
     }
   }
 }
@@ -490,18 +552,21 @@ function cleanup() {
     }
     if (injector.subtitleElement && injector.subtitleElement.parentNode) {
       injector.subtitleElement.parentNode.removeChild(injector.subtitleElement);
-    }    if (injector.toggleButton && injector.toggleButton.parentNode) {
+    }
+    if (injector.toggleButton && injector.toggleButton.parentNode) {
       injector.toggleButton.parentNode.removeChild(injector.toggleButton);
     }
+    // Reset loading state
+    injector.autoLoadInProgress = false;
     injector = null;
   }
-  
+
   // Clean up subtitle HTML styles
-  const subtitleStyles = document.getElementById('subtitle-html-styles');
+  const subtitleStyles = document.getElementById("subtitle-html-styles");
   if (subtitleStyles) {
     subtitleStyles.remove();
   }
-  
+
   if (navigationObserver) {
     navigationObserver.disconnect();
     navigationObserver = null;
@@ -510,9 +575,12 @@ function cleanup() {
 
 // Initialize when page loads
 function initialize() {
-  cleanup(); 
+  cleanup();
   try {
-    injector = new YouTubeSubtitleInjector();
+    // Add a small delay to ensure DOM is ready
+    setTimeout(() => {
+      injector = new YouTubeSubtitleInjector();
+    }, 100);
   } catch (e) {
     console.error("Failed to initialize subtitle injector:", e);
   }
@@ -528,17 +596,46 @@ if (document.readyState === "loading") {
 let currentURL = location.href;
 navigationObserver = new MutationObserver(() => {
   if (location.href !== currentURL) {
-    currentURL = location.href;
-    setTimeout(() => {
-      initialize();
-      // Re-setup the button after navigation
-      if (injector) {
-        setTimeout(() => injector.setupPlayerButton(), 1000);
-      }
-    }, 1000);
+    const newURL = location.href;
+    const oldVideoId = new URLSearchParams(new URL(currentURL).search).get("v");
+    const newVideoId = new URLSearchParams(new URL(newURL).search).get("v");
+
+    currentURL = newURL;
+
+    console.log("Navigation detected:", { oldVideoId, newVideoId });
+
+    // Only reinitialize if we're navigating to a different video
+    if (oldVideoId !== newVideoId) {
+      setTimeout(() => {
+        initialize();
+        // Re-setup the button after navigation with longer delay
+        if (injector) {
+          setTimeout(() => injector.setupPlayerButton(), 1500);
+        }
+      }, 1000);
+    }
   }
 });
 navigationObserver.observe(document, { subtree: true, childList: true });
+
+// Fallback mechanism - periodically check for URL changes
+// This helps catch navigation events that the MutationObserver might miss
+setInterval(() => {
+  if (location.href !== currentURL) {
+    console.log("Fallback navigation detection triggered");
+    const newURL = location.href;
+    const oldVideoId = new URLSearchParams(new URL(currentURL).search).get("v");
+    const newVideoId = new URLSearchParams(new URL(newURL).search).get("v");
+
+    currentURL = newURL;
+
+    if (oldVideoId !== newVideoId && injector) {
+      console.log("Fallback: Different video detected, checking auto-load");
+      injector.lastVideoId = newVideoId;
+      setTimeout(() => injector.autoLoadSubtitles(), 1000);
+    }
+  }
+}, 2000); // Check every 2 seconds
 
 // Handle errors that might occur when the extension context is invalidated
 window.addEventListener("unload", cleanup);
