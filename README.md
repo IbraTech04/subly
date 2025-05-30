@@ -20,24 +20,14 @@ Ever been frustrated by missing captions on YouTube videos? Or wanted to add you
 
 This lightweight Chrome extension allows you to effortlessly inject SRT subtitle files directly into any YouTube video, displaying them using YouTube's native subtitle interface for a completely seamless experience.
 
-## ✨ Features
+## Features
 
-<div align="center">
-  
-| 🎯 **Core Features** | 🎨 **Customization** | 🔗 **Integration** |
-|---------------------|----------------------|-------------------|
-| • SRT file upload support | • Customizable subtitle appearance | • Native YouTube UI integration |
-| • Direct URL subtitle loading | • Chrome sync across devices | • Auto-sync with Sendokai Subtitles |
-| • Works on any YouTube video | • Real-time preview | • Cross-platform compatibility |
-| • Drag & drop interface | • Multiple styling options | • Open source & extensible |
-
-</div>
-
-### 🎭 Special Integration: Sendokai Subtitles
-
-> Subly sports native integration with my [Sendokai Subtitles](https://github.com/IbraTech04/sendokai-subtitles) project!
-> 
-> When this extension is installed, English subtitles will automatically be added to any Sendokai episode that has matching SRT files available in the repository. No manual work required!
+- Full support for SRT subtitle files, including subtitle styling and formatting
+- Native support for my [Sendokai Subtitles](https://github.com/IbraTech04/sendokai-subtitles) project!
+- Easy-to-use popup interface for loading subtitles
+- Customizable subtitle styles, syncing, and more
+- Toggle subtitles on/off with a single click
+- Works with any YouTube video!
 
 ## 🚀 Installation
 
@@ -68,7 +58,7 @@ This lightweight Chrome extension allows you to effortlessly inject SRT subtitle
    - Select the cloned `subly` folder
    - ✅ You're all set!
 
-## 📖 Usage
+## Usage
 
 ### Quick Start Guide
 
