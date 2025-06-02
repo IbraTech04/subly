@@ -20,6 +20,7 @@ class PopupController {  constructor() {
 
     this.init();
     this.loadSettings();
+    this.loadVersion();
     this.autoPopulateSubtitles();
   }
 
@@ -53,6 +54,23 @@ class PopupController {  constructor() {
 
     // Update subtitle status
     this.updateSubtitleStatus(result.subtitlesEnabled !== false);
+  }
+
+  async loadVersion() {
+    try {
+      const manifest = chrome.runtime.getManifest();
+      const versionElement = document.getElementById("versionDisplay");
+      if (versionElement && manifest.version) {
+        versionElement.textContent = `v${manifest.version}`;
+      }
+    } catch (error) {
+      console.error("Failed to load version:", error);
+      // Fallback to a default version if manifest loading fails
+      const versionElement = document.getElementById("versionDisplay");
+      if (versionElement) {
+        versionElement.textContent = "v1.0";
+      }
+    }
   }
 
   setupEventListeners() {

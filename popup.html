@@ -369,6 +369,21 @@
       letter-spacing: -0.5px;
       margin: 0;
     }
+
+    .footer {
+      text-align: center;
+      margin-top: 16px;
+      padding: 12px 0;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 12px;
+      font-weight: 500;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .version {
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>  <div class="header-container">
@@ -442,6 +457,9 @@
     </div>
   </div>
     <div id="status"></div>
+  <div class="footer">
+    Subly <span class="version" id="versionDisplay">v...</span>
+  </div>
 
   <script src="popup.js"></script>
 </body>
