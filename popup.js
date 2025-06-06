@@ -132,7 +132,7 @@ class PopupController {  constructor() {
           const currentSize = parseInt(this.fontSize.textContent);
           const newSize =
             btn.dataset.action === "increaseSize"
-              ? Math.min(32, currentSize + 2)
+              ? Math.min(64, currentSize + 2)
               : Math.max(12, currentSize - 2);
           this.fontSize.textContent = newSize;
           this.debouncedUpdateSetting("fontSize", newSize);

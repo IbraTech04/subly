@@ -2,40 +2,36 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <style>
-    body {
-      width: 320px;
-      padding: 24px;
+  <style>    body {
+      width: 280px;
+      padding: 16px;
       font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
       background: linear-gradient(135deg, #ff4444 0%, #e73c3c 100%);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(231, 60, 60, 0.3);
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(231, 60, 60, 0.3);
       margin: 0;
-    }
-      .title {
-      font-size: 28px;
+    }      .title {
+      font-size: 24px;
       font-weight: 700;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       color: white;
       text-align: center;
       text-shadow: 0 2px 4px rgba(0,0,0,0.2);
       letter-spacing: -0.5px;
     }
-    
-    .card {
+      .card {
       background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
     }
-    
-    .file-input-container {
+      .file-input-container {
       border: 2px dashed #ff4444;
-      border-radius: 12px;
-      padding: 24px;
+      border-radius: 10px;
+      padding: 18px;
       text-align: center;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -63,19 +59,18 @@
       font-size: 14px;
       font-weight: 500;
     }
-    
-    .load-btn {
+      .load-btn {
       background: linear-gradient(135deg, #ff4444 0%, #e73c3c 100%);
       color: white;
       border: none;
-      padding: 14px 24px;
-      border-radius: 8px;
+      padding: 12px 20px;
+      border-radius: 7px;
       cursor: pointer;
       width: 100%;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+      box-shadow: 0 3px 10px rgba(255, 68, 68, 0.3);
     }
     
     .load-btn:hover {
@@ -89,12 +84,11 @@
       transform: none;
       box-shadow: none;
     }
-    
-    .status {
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
+      .status {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 7px;
+      font-size: 13px;
       font-weight: 500;
     }
     
@@ -108,20 +102,16 @@
       background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
       color: white;
       box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
-    }
-
-    .url-input-container {
-      margin: 16px 0;
+    }    .url-input-container {
+      margin: 12px 0;
       display: flex;
-      gap: 10px;
-    }
-
-    #urlInput {
+      gap: 8px;
+    }    #urlInput {
       flex-grow: 1;
-      padding: 12px;
+      padding: 10px;
       border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 7px;
+      font-size: 13px;
       transition: border-color 0.3s ease;
       background: white;
     }
@@ -130,19 +120,19 @@
       outline: none;
       border-color: #ff4444;
       box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
-    }
-
+    }    
+    
     .fetch-btn {
       background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
       color: white;
       border: none;
-      padding: 12px 18px;
-      border-radius: 8px;
+      padding: 10px 16px;
+      border-radius: 7px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+      box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
     }
 
     .fetch-btn:hover {
@@ -166,11 +156,9 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
-    }
-
-    .settings-header h3 {
+    }    .settings-header h3 {
       margin: 0;
-      font-size: 18px;
+      font-size: 16px;
       color: #333;
       font-weight: 600;
     }
@@ -188,14 +176,12 @@
     .toggle-settings:hover {
       background: rgba(255, 68, 68, 0.2);
       transform: rotate(90deg);
-    }
-
-    .settings-panel {
+    }    .settings-panel {
       display: none;
       background: rgba(255, 68, 68, 0.05);
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 12px;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
       border: 1px solid rgba(255, 68, 68, 0.1);
     }
 
@@ -213,10 +199,8 @@
         opacity: 1;
         transform: translateY(0);
       }
-    }
-
-    .setting-group {
-      margin-bottom: 16px;
+    }    .setting-group {
+      margin-bottom: 12px;
     }
 
     .setting-group:last-child {
@@ -229,39 +213,33 @@
       color: #555;
       font-size: 13px;
       font-weight: 600;
-    }
-
-    .setting-control {
+    }    .setting-control {
       display: flex;
       align-items: center;
-      gap: 12px;
-    }
-
-    .setting-btn {
+      gap: 10px;
+    }.setting-btn {
       background: white;
       border: 2px solid #ff4444;
-      border-radius: 6px;
-      padding: 6px 12px;
+      border-radius: 5px;
+      padding: 5px 10px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       color: #ff4444;
       transition: all 0.3s ease;
-      min-width: 36px;
+      min-width: 32px;
     }
 
     .setting-btn:hover {
       background: #ff4444;
       color: white;
       transform: scale(1.05);
-    }
-
-    .setting-select {
+    }    .setting-select {
       width: 100%;
-      padding: 10px;
+      padding: 8px;
       border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 7px;
+      font-size: 13px;
       background: white;
       transition: border-color 0.3s ease;
     }
@@ -270,14 +248,12 @@
       outline: none;
       border-color: #ff4444;
       box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.1);
-    }
-
-    .color-picker {
+    }    .color-picker {
       width: 100%;
-      height: 40px;
+      height: 36px;
       padding: 0;
       border: 2px solid #e0e0e0;
-      border-radius: 8px;
+      border-radius: 7px;
       cursor: pointer;
       transition: all 0.3s ease;
     }
@@ -292,12 +268,10 @@
       font-size: 11px;
       margin-left: 4px;
       font-weight: 500;
-    }
-
-    .subtitle-status {
+    }    .subtitle-status {
       border: 2px solid #ddd;
       background: rgba(255, 255, 255, 0.9);
-      border-radius: 12px;
+      border-radius: 10px;
       transition: all 0.3s ease;
     }
 
@@ -340,17 +314,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 16px;
-      margin-bottom: 24px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
     .logo {
-      width: 48px;
-      height: 48px;
-      border-radius: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 20px;
       background: rgba(255, 255, 255, 0.95);
-      padding: 8px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      padding: 6px;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
       transition: all 0.3s ease;
       flex-shrink: 0;
     }
@@ -359,23 +333,19 @@
       transform: scale(1.05);
       background: rgba(255, 255, 255, 1);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-    }
-
-    .title {
-      font-size: 28px;
+    }    .title {
+      font-size: 24px;
       font-weight: 700;
       color: white;
       text-shadow: 0 2px 4px rgba(0,0,0,0.2);
       letter-spacing: -0.5px;
       margin: 0;
-    }
-
-    .footer {
+    }    .footer {
       text-align: center;
-      margin-top: 16px;
-      padding: 12px 0;
+      margin-top: 12px;
+      padding: 10px 0;
       color: rgba(255, 255, 255, 0.7);
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 500;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
