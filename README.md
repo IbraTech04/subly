@@ -77,3 +77,17 @@ This lightweight Chrome extension allows you to effortlessly inject SRT subtitle
    - Click "Load Subtitles"
    - Watch as your custom subtitles seamlessly integrate with YouTube's player!
    - Subly *also* injects a button to toggle subtitles on/off in the native YouTube player!
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### What this means:
+- ✅ You can use this project for personal and commercial purposes
+- ✅ You can modify and distribute this code
+- ✅ You can contribute to this project
+- ⚠️ You must include the original license notice
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Whether it's bug fixes, feature additions, or documentation improvements, your help makes Subly better for everyone.
